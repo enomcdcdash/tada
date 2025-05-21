@@ -31,6 +31,9 @@ if file:
         ]
         df = df_raw[needed_columns].copy()
 
+        # Remove excluded rows
+        df = df[df['Is Excluded In KPI'].str.upper() != 'YES']
+
         # Map OldKPI
         fault_mapping = {
             'Controller P2': 'B22', 'Controller P1': 'B22',
@@ -41,6 +44,7 @@ if file:
             'L2 License': 'B3', 'P3': 'B3'
         }
         df['OldKPI'] = df['Fault Level'].map(fault_mapping)
+        df.loc[df['Type Ticket'] == 'Incident', 'OldKPI'] = 'B1'
 
         # Datetime parsing
         df['Occured Time'] = pd.to_datetime(df['Occured Time'], errors='coerce')
@@ -69,6 +73,9 @@ if file:
         # Handling and ScoreTO
         df['Handling'] = df['PIC Take Over Ticket'].apply(lambda x: 'Autoclear' if pd.isna(x) else 'Takeover')
         df['ScoreTO'] = df['Handling'].map({'Takeover': 0.3, 'Autoclear': 0})
+
+        # Remove rows with Handling == 'Autoclear' and MTTR < 1
+        df = df[~((df['Handling'] == 'Autoclear') & (df['MTTR'] < 1))]
 
         # Visitation and ScoreVisit
         df['Visitation'] = df['Check In At'].apply(lambda x: 'Visit' if pd.notna(x) else 'NoVisit')
