@@ -19,7 +19,7 @@ def convert_df_to_csv(df):
 st.title("📊 KPI Data Processor")
 
 uploaded_files = st.file_uploader(
-    "Upload one or more Excel files (max total 80 MB)", 
+    "Upload one or more SWFM data files (max total 200 MB)", 
     type=["xlsx"], 
     accept_multiple_files=True
 )
