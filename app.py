@@ -106,7 +106,7 @@ if uploaded_files:
 
         # Summary
         summary = df.groupby(
-            ['Area', 'Regional', 'NOP', 'OldKPI', 'Severity']
+            ['Month', 'Year', 'Area', 'Regional', 'NOP', 'OldKPI', 'Severity']
         ).agg(
             Ticket_Count=('Ticket Number SWFM', 'count'),
             Avg_SCORE=('SCORE', 'mean'),
