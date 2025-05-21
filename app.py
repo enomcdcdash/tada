@@ -171,6 +171,10 @@ if uploaded_files:
     # Download button
     st.download_button("📥 Download Summary CSV", convert_df_to_csv(filtered_summary), "summary.csv", "text/csv")
 
+    # Show full processed data
+    with st.expander("🔍 View Full Processed Data"):
+        st.dataframe(df)
+        
     # Download processed data
     csv = df.to_csv(index=False).encode('utf-8')
     st.download_button(
@@ -180,6 +184,3 @@ if uploaded_files:
         mime='text/csv'
     )
 
-    # Show full processed data
-    with st.expander("🔍 View Full Processed Data"):
-        st.dataframe(df)
