@@ -28,7 +28,6 @@ if uploaded_files:
     with st.spinner("Reading and processing files..."):
         df_raw = load_excel(uploaded_files)
 
-        # [Same processing logic as before...]
         # Keep only required columns
         needed_columns = [
             'Ticket Number Inap', 'Ticket Number SWFM', 'Severity', 'Type Ticket', 'Site Id',
@@ -39,6 +38,9 @@ if uploaded_files:
             'Site Cleared On', 'Rank', 'RCA Validated'
         ]
         df = df_raw[needed_columns].copy()
+        
+        # Remove duplicates based on "Ticket Number SWFM"
+        df = df.drop_duplicates(subset="Ticket Number SWFM", keep="first")
 
         # Remove excluded rows
         df = df[df['Is Excluded In KPI'].str.upper() != 'YES']
