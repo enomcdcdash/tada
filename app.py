@@ -102,19 +102,25 @@ if file:
     # Display results
     st.subheader("📊 Summary Table")
     st.dataframe(summary)
-    
-    # Download option
-    st.download_button("📥 Download Summary CSV", convert_df_to_csv(summary), "summary.csv", "text/csv")
-    
-    Download button for processed data
-            csv = df.to_csv(index=False).encode('utf-8')
-            st.download_button(
-                label="📥 Download Processed Data as CSV",
-                data=csv,
-                file_name='processed_kpi_data.csv',
-                mime='text/csv'
-            )
-    
+
+    # Download summary
+    st.download_button(
+        label="📥 Download Summary CSV",
+        data=convert_df_to_csv(summary),
+        file_name="summary.csv",
+        mime="text/csv"
+    )
+
+    # Download processed data
+    csv = df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="📥 Download Processed Data as CSV",
+        data=csv,
+        file_name='processed_kpi_data.csv',
+        mime='text/csv'
+    )
+
+    # Show full processed data
     with st.expander("🔍 View Full Processed Data"):
         st.dataframe(df)
 
