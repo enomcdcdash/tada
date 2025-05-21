@@ -90,15 +90,6 @@ if file:
         # Final SCORE
         df['SCORE'] = (df['ScoreTO'] + df['ScoreVisit'] + df['ScoreRCA'] + df['ScoreClosed']) * df['ScoreMTTR']
 
-        # Download button for processed data
-        csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            label="📥 Download Processed Data as CSV",
-            data=csv,
-            file_name='processed_kpi_data.csv',
-            mime='text/csv'
-        )
-
         # Summary
         summary = df.groupby(
             ['Area', 'Regional', 'NOP', 'OldKPI', 'Severity']
@@ -111,9 +102,20 @@ if file:
     # Display results
     st.subheader("📊 Summary Table")
     st.dataframe(summary)
-
+    
+    # Download option
+    st.download_button("📥 Download Summary CSV", convert_df_to_csv(summary), "summary.csv", "text/csv")
+    
+    Download button for processed data
+            csv = df.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📥 Download Processed Data as CSV",
+                data=csv,
+                file_name='processed_kpi_data.csv',
+                mime='text/csv'
+            )
+    
     with st.expander("🔍 View Full Processed Data"):
         st.dataframe(df)
 
-    # Download option
-    st.download_button("📥 Download Summary CSV", convert_df_to_csv(summary), "summary.csv", "text/csv")
+    
