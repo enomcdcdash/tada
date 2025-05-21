@@ -5,8 +5,12 @@ from datetime import datetime
 st.set_page_config(page_title="KPI Processor", layout="wide")
 
 @st.cache_data
-def load_excel(file):
-    return pd.read_excel(file, engine='openpyxl')
+def load_excel(files):
+    dfs = []
+    for file in files:
+        df = pd.read_excel(file, engine='openpyxl')
+        dfs.append(df)
+    return pd.concat(dfs, ignore_index=True)
 
 @st.cache_data
 def convert_df_to_csv(df):
@@ -14,12 +18,17 @@ def convert_df_to_csv(df):
 
 st.title("📊 KPI Data Processor")
 
-file = st.file_uploader("Upload your Excel file (max 80 MB)", type=["xlsx"])
+uploaded_files = st.file_uploader(
+    "Upload one or more Excel files (max total 80 MB)", 
+    type=["xlsx"], 
+    accept_multiple_files=True
+)
 
-if file:
-    with st.spinner("Reading and processing file..."):
-        df_raw = load_excel(file)
+if uploaded_files:
+    with st.spinner("Reading and processing files..."):
+        df_raw = load_excel(uploaded_files)
 
+        # [Same processing logic as before...]
         # Keep only required columns
         needed_columns = [
             'Ticket Number Inap', 'Ticket Number SWFM', 'Severity', 'Type Ticket', 'Site Id',
@@ -34,7 +43,7 @@ if file:
         # Remove excluded rows
         df = df[df['Is Excluded In KPI'].str.upper() != 'YES']
 
-        # Map OldKPI
+        # Mapping OldKPI
         fault_mapping = {
             'Controller P2': 'B22', 'Controller P1': 'B22',
             'Enva Controller': 'B21', 'Enva Site': 'B21', 'Enva Site GSB': 'B21',
@@ -46,7 +55,7 @@ if file:
         df['OldKPI'] = df['Fault Level'].map(fault_mapping)
         df.loc[df['Type Ticket'] == 'Incident', 'OldKPI'] = 'B1'
 
-        # Datetime parsing
+        # Date parsing
         df['Occured Time'] = pd.to_datetime(df['Occured Time'], errors='coerce')
         df['Cleared Time'] = pd.to_datetime(df['Cleared Time'], errors='coerce')
         df['Site Cleared On'] = pd.to_datetime(df['Site Cleared On'], errors='coerce')
@@ -123,5 +132,3 @@ if file:
     # Show full processed data
     with st.expander("🔍 View Full Processed Data"):
         st.dataframe(df)
-
-    
