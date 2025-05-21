@@ -43,6 +43,11 @@ if uploaded_files:
         # Remove excluded rows
         df = df[df['Is Excluded In KPI'].str.upper() != 'YES']
 
+        # Extract Month and Year from "Occured Time"
+        df['Occured Time'] = pd.to_datetime(df['Occured Time'], errors='coerce')
+        df['Month'] = df['Occured Time'].dt.strftime('%B')  # Full month name (e.g., March)
+        df['Year'] = df['Occured Time'].dt.year
+
         # Mapping OldKPI
         fault_mapping = {
             'Controller P2': 'B22', 'Controller P1': 'B22',
@@ -107,6 +112,48 @@ if uploaded_files:
             Avg_SCORE=('SCORE', 'mean'),
             Sum_SCORE=('SCORE', 'sum'),
         ).reset_index()
+
+    # Get unique filter options
+    month_options = sorted(df['Month'].dropna().unique())
+    year_options = sorted(df['Year'].dropna().unique())
+    area_options = sorted(df['Area'].dropna().unique())
+    
+    # Month and Year filter
+    col1, col2 = st.columns(2)
+    with col1:
+        selected_month = st.selectbox("📅 Select Month", ['All'] + month_options)
+    with col2:
+        selected_year = st.selectbox("📆 Select Year", ['All'] + list(map(str, year_options)))
+    
+    # Area filter
+    selected_area = st.selectbox("🌍 Select Area", ['All'] + area_options)
+    
+    # Filter Regional based on selected Area
+    if selected_area != 'All':
+        filtered_regional = sorted(df[df['Area'] == selected_area]['Regional'].dropna().unique())
+    else:
+        filtered_regional = sorted(df['Regional'].dropna().unique())
+    selected_regional = st.selectbox("📍 Select Regional", ['All'] + filtered_regional)
+    
+    # Filter NOP based on selected Regional
+    if selected_regional != 'All':
+        filtered_nop = sorted(df[df['Regional'] == selected_regional]['NOP'].dropna().unique())
+    else:
+        filtered_nop = sorted(df['NOP'].dropna().unique())
+    selected_nop = st.selectbox("🏢 Select NOP", ['All'] + filtered_nop)
+    
+    # Apply filters to summary
+    filtered_summary = summary.copy()
+    if selected_month != 'All':
+        filtered_summary = filtered_summary[filtered_summary['Month'] == selected_month]
+    if selected_year != 'All':
+        filtered_summary = filtered_summary[filtered_summary['Year'] == int(selected_year)]
+    if selected_area != 'All':
+        filtered_summary = filtered_summary[filtered_summary['Area'] == selected_area]
+    if selected_regional != 'All':
+        filtered_summary = filtered_summary[filtered_summary['Regional'] == selected_regional]
+    if selected_nop != 'All':
+        filtered_summary = filtered_summary[filtered_summary['NOP'] == selected_nop]
 
     # Display results
     st.subheader("📊 Summary Table")
