@@ -118,29 +118,38 @@ if uploaded_files:
     year_options = sorted(df['Year'].dropna().unique())
     area_options = sorted(df['Area'].dropna().unique())
     
-    # Month and Year filter
-    col1, col2 = st.columns(2)
+    # Set up 5 columns for filters
+    col1, col2, col3, col4, col5 = st.columns(5)
+    
+    # Month filter
     with col1:
-        selected_month = st.selectbox("📅 Select Month", ['All'] + month_options)
+        selected_month = st.selectbox("📅 Month", ['All'] + month_options)
+    
+    # Year filter
     with col2:
-        selected_year = st.selectbox("📆 Select Year", ['All'] + list(map(str, year_options)))
+        selected_year = st.selectbox("📆 Year", ['All'] + list(map(str, year_options)))
     
     # Area filter
-    selected_area = st.selectbox("🌍 Select Area", ['All'] + area_options)
+    with col3:
+        selected_area = st.selectbox("🌍 Area", ['All'] + area_options)
     
-    # Filter Regional based on selected Area
+    # Regional filter (cascading from Area)
     if selected_area != 'All':
-        filtered_regional = sorted(df[df['Area'] == selected_area]['Regional'].dropna().unique())
+        regional_options = sorted(df[df['Area'] == selected_area]['Regional'].dropna().unique())
     else:
-        filtered_regional = sorted(df['Regional'].dropna().unique())
-    selected_regional = st.selectbox("📍 Select Regional", ['All'] + filtered_regional)
+        regional_options = sorted(df['Regional'].dropna().unique())
     
-    # Filter NOP based on selected Regional
+    with col4:
+        selected_regional = st.selectbox("📍 Regional", ['All'] + regional_options)
+    
+    # NOP filter (cascading from Regional)
     if selected_regional != 'All':
-        filtered_nop = sorted(df[df['Regional'] == selected_regional]['NOP'].dropna().unique())
+        nop_options = sorted(df[df['Regional'] == selected_regional]['NOP'].dropna().unique())
     else:
-        filtered_nop = sorted(df['NOP'].dropna().unique())
-    selected_nop = st.selectbox("🏢 Select NOP", ['All'] + filtered_nop)
+        nop_options = sorted(df['NOP'].dropna().unique())
+    
+    with col5:
+        selected_nop = st.selectbox("🏢 NOP", ['All'] + nop_options)
     
     # Apply filters to summary
     filtered_summary = summary.copy()
@@ -154,12 +163,12 @@ if uploaded_files:
         filtered_summary = filtered_summary[filtered_summary['Regional'] == selected_regional]
     if selected_nop != 'All':
         filtered_summary = filtered_summary[filtered_summary['NOP'] == selected_nop]
-
+        
     # Display results
     st.subheader("📊 Summary Table")
     st.dataframe(filtered_summary)
-
-    # Download option
+    
+    # Download button
     st.download_button("📥 Download Summary CSV", convert_df_to_csv(filtered_summary), "summary.csv", "text/csv")
 
     # Download processed data
