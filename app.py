@@ -83,7 +83,7 @@ if uploaded_files:
         df['SLAMTTR'] = df.apply(lambda row: slamap.get((row['Type Ticket'], row['Severity']), 0), axis=1)
 
         # ScoreMTTR
-        df['ScoreMTTR'] = df['MTTR'] / df['SLAMTTR']
+        df['ScoreMTTR'] = df['SLAMTTR'] / df['MTTR']
         df['ScoreMTTR'] = df['ScoreMTTR'].apply(lambda x: min(x, 1.5) if x > 0 else 0)
 
         # Handling and ScoreTO
